@@ -1,22 +1,20 @@
 import { memo, useMemo } from "react";
 import Cell from "./Cell";
 import Player from "./Player";
+import Monster from "./Monster";
 import { GAME_CONFIG } from "../../utils/constants";
 
-/**
- * مكون المتاهة الرئيسي
- */
 const Maze = memo(function Maze({
   mazeData,
   playerPosition,
   playerDirection = 0,
   visitedCells,
+  monsters = [],
   isWinner = false,
 }) {
   const { grid, width, height } = mazeData;
   const cellSize = GAME_CONFIG.CELL_SIZE;
 
-  // حساب أبعاد المتاهة
   const mazeStyle = useMemo(
     () => ({
       width: width * cellSize,
@@ -28,7 +26,6 @@ const Maze = memo(function Maze({
     [width, height, cellSize]
   );
 
-  // رسم الخلايا
   const cells = useMemo(() => {
     const result = [];
     for (let y = 0; y < height; y++) {
@@ -49,10 +46,19 @@ const Maze = memo(function Maze({
 
   return (
     <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-purple-500/20 border-4 border-slate-700/50">
-      {/* تأثير التوهج */}
       <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-blue-500/10 pointer-events-none" />
 
       <div style={mazeStyle}>{cells}</div>
+
+      {monsters.map((monster) => (
+        <Monster
+          key={monster.id}
+          position={monster.position}
+          direction={monster.direction}
+          isResting={monster.isResting}
+          cellSize={cellSize}
+        />
+      ))}
 
       <Player
         position={playerPosition}

@@ -1,25 +1,25 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback } from "react";
 import { generateMaze } from "../utils/mazeGenerator";
-import { GAME_CONFIG } from "../utils/constants";
+import { GAME_CONFIG, GAME_STATUS } from "../utils/constants";
 
-/**
- * Hook لإدارة حالة المتاهة
- */
 export function useMaze() {
   const [mazeData, setMazeData] = useState(() =>
     generateMaze(GAME_CONFIG.MAZE_WIDTH, GAME_CONFIG.MAZE_HEIGHT)
   );
 
   const [gameState, setGameState] = useState({
-    isWon: false,
+    status: GAME_STATUS.PLAYING,
     moves: 0,
     startTime: Date.now(),
   });
 
   const regenerateMaze = useCallback(() => {
+    console.log("\n" + "🎮".repeat(20));
+    console.log("NEW GAME STARTED");
+    console.log("🎮".repeat(20) + "\n");
     setMazeData(generateMaze(GAME_CONFIG.MAZE_WIDTH, GAME_CONFIG.MAZE_HEIGHT));
     setGameState({
-      isWon: false,
+      status: GAME_STATUS.PLAYING,
       moves: 0,
       startTime: Date.now(),
     });
@@ -30,7 +30,13 @@ export function useMaze() {
   }, []);
 
   const setWin = useCallback(() => {
-    setGameState((prev) => ({ ...prev, isWon: true }));
+    console.log("🏆 VICTORY!");
+    setGameState((prev) => ({ ...prev, status: GAME_STATUS.WON }));
+  }, []);
+
+  const setLose = useCallback(() => {
+    console.log("💀 DEFEAT!");
+    setGameState((prev) => ({ ...prev, status: GAME_STATUS.LOST }));
   }, []);
 
   return {
@@ -39,5 +45,6 @@ export function useMaze() {
     regenerateMaze,
     incrementMoves,
     setWin,
+    setLose,
   };
 }

@@ -1,16 +1,16 @@
-// ثوابت اللعبة
 export const GAME_CONFIG = {
-  // حجم المتاهة (يجب أن يكون فردي)
   MAZE_WIDTH: 21,
   MAZE_HEIGHT: 15,
-
-  // حجم الخلية بالبكسل
   CELL_SIZE: 32,
-
-  // سرعة اللاعب (بالميلي ثانية) - قللناها جداً
   MOVE_DELAY: 50,
 
-  // اتجاهات الحركة مع زاوية الدوران
+  MONSTER_COUNT: 2,
+  MONSTER_SPEED: 800,
+  MONSTER_START_DELAY: 3000,
+  MONSTER_REST_EVERY: 5,
+  MONSTER_REST_TIME: 5000,
+  MONSTER_RANDOM_CHANCE: 0.3,
+
   DIRECTIONS: {
     UP: { x: 0, y: -1, key: ["ArrowUp", "w", "W"], rotation: -90 },
     DOWN: { x: 0, y: 1, key: ["ArrowDown", "s", "S"], rotation: 90 },
@@ -19,11 +19,15 @@ export const GAME_CONFIG = {
   },
 };
 
-// أنواع الخلايا
 export const CELL_TYPES = {
   WALL: 0,
   PATH: 1,
   START: 2,
   EXIT: 3,
-  VISITED: 4,
+};
+
+export const GAME_STATUS = {
+  PLAYING: "playing",
+  WON: "won",
+  LOST: "lost",
 };

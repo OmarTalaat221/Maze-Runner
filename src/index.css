@@ -16,13 +16,11 @@ body,
   overflow: hidden;
 }
 
-/* خلفية متحركة مع نجوم */
 body {
   background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
   position: relative;
 }
 
-/* نمط النجوم SVG */
 body::before {
   content: "";
   position: fixed;
@@ -37,7 +35,6 @@ body::before {
   z-index: 0;
 }
 
-/* تأثير الغيوم */
 body::after {
   content: "";
   position: fixed;
@@ -61,7 +58,6 @@ body::after {
   }
 }
 
-/* تحسين الأداء */
 .maze-cell {
   will-change: background-color;
   contain: strict;
@@ -71,7 +67,6 @@ body::after {
   will-change: transform;
 }
 
-/* أنيميشن للمودال */
 @keyframes modalSlideIn {
   from {
     opacity: 0;
@@ -100,7 +95,6 @@ body::after {
   animation: modalSlideIn 0.4s ease-out;
 }
 
-/* أنيميشن للشخصية عند الفوز */
 @keyframes celebrate {
   0%,
   100% {
@@ -118,7 +112,6 @@ body::after {
   animation: celebrate 0.4s ease-in-out infinite;
 }
 
-/* تأثير الكونفيتي */
 @keyframes confetti-fall {
   0% {
     transform: translateY(-100%) rotate(0deg);
@@ -137,15 +130,26 @@ body::after {
   animation: confetti-fall 3s ease-in-out forwards;
 }
 
-/* تأثير نبض خفيف للحركة */
-@keyframes movePulse {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05);
-  }
+@keyframes shake {
+  0%,
   100% {
-    transform: scale(1);
+    transform: translateX(0);
   }
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-5px);
+  }
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(5px);
+  }
+}
+
+.animate-shake {
+  animation: shake 0.5s ease-in-out;
 }
