@@ -70,9 +70,6 @@ const Player = memo(function Player({
           <ellipse cx="82" cy="46" rx="4" ry="5" fill="#2D3436" />
           <circle cx="84" cy="44" r="2" fill="white" />
 
-          {/* === العين الثانية (أصغر - بعيدة) === */}
-          <ellipse cx="72" cy="43" rx="5" ry="7" fill="white" />
-          <ellipse cx="73" cy="44" rx="3" ry="4" fill="#2D3436" />
           <circle cx="74" cy="42" r="1.5" fill="white" />
 
           {/* === الأنف === */}
