@@ -2,7 +2,7 @@ import { memo } from "react";
 
 const GameLayout = memo(function GameLayout({ children, title }) {
   return (
-    <div className="relative w-screen h-screen flex flex-col items-center justify-center p-4 select-none z-10">
+    <div className="relative w-screen h-screen flex flex-col items-center justify-center p-4 select-none z-10 overflow-auto no-scrollbar">
       <header className="mb-4">
         <h1 className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-400 to-indigo-400 tracking-wider drop-shadow-lg">
           {title}

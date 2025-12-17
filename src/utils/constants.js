@@ -9,7 +9,10 @@ export const GAME_CONFIG = {
   MONSTER_START_DELAY: 3000,
   MONSTER_REST_EVERY: 5,
   MONSTER_REST_TIME: 5000,
-  MONSTER_RANDOM_CHANCE: 0.3,
+
+  MIN_COST: 1,
+  MAX_COST: 5,
+  EXTRA_PATHS_PERCENTAGE: 0.15,
 
   DIRECTIONS: {
     UP: { x: 0, y: -1, key: ["ArrowUp", "w", "W"], rotation: -90 },
@@ -30,4 +33,24 @@ export const GAME_STATUS = {
   PLAYING: "playing",
   WON: "won",
   LOST: "lost",
+};
+
+export const ALGORITHMS = {
+  BFS: "bfs",
+  DFS: "dfs",
+  UCS: "ucs",
+  IDS: "ids",
+  A_STAR_MANHATTAN: "a_star_manhattan",
+  A_STAR_DANGER: "a_star_danger",
+  HILL_CLIMBING: "hill_climbing",
+};
+
+export const ALGORITHM_NAMES = {
+  [ALGORITHMS.BFS]: "BFS - Breadth First Search",
+  [ALGORITHMS.DFS]: "DFS - Depth First Search",
+  [ALGORITHMS.UCS]: "UCS - Uniform Cost Search",
+  [ALGORITHMS.IDS]: "IDS - Iterative Deepening",
+  [ALGORITHMS.A_STAR_MANHATTAN]: "A* - Manhattan Distance",
+  [ALGORITHMS.A_STAR_DANGER]: "A* - Danger Aware",
+  [ALGORITHMS.HILL_CLIMBING]: "Hill Climbing",
 };

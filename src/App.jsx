@@ -1,16 +1,20 @@
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import GameLayout from "./components/layout/GameLayout";
 import Maze from "./components/maze/Maze";
 import GameControls from "./components/ui/GameControls";
+import GameStats from "./components/ui/GameStats";
+import AlgorithmTabs from "./components/ui/AlgorithmTabs";
 import WinModal from "./components/ui/WinModal";
 import LoseModal from "./components/ui/LoseModal";
 import { useMaze } from "./hooks/useMaze";
 import { usePlayer } from "./hooks/usePlayer";
 import { useMonsters } from "./hooks/useMonsters";
 import { useKeyboard } from "./hooks/useKeyboard";
-import { GAME_STATUS } from "./utils/constants";
+import { GAME_STATUS, ALGORITHMS } from "./utils/constants";
 
 function App() {
+  const [selectedAlgorithm, setSelectedAlgorithm] = useState(ALGORITHMS.BFS);
+
   const {
     mazeData,
     gameState,
@@ -27,7 +31,8 @@ function App() {
     move,
     resetPosition,
     updateMonsters,
-  } = usePlayer(mazeData, incrementMoves, setWin, []);
+    updateAlgorithm,
+  } = usePlayer(mazeData, incrementMoves, setWin, [], selectedAlgorithm);
 
   const { monsters, resetMonsters } = useMonsters(
     mazeData,
@@ -39,6 +44,10 @@ function App() {
   useEffect(() => {
     updateMonsters(monsters);
   }, [monsters, updateMonsters]);
+
+  useEffect(() => {
+    updateAlgorithm(selectedAlgorithm);
+  }, [selectedAlgorithm, updateAlgorithm]);
 
   const handleMove = useCallback(
     (dx, dy, rotation) => {
@@ -63,7 +72,18 @@ function App() {
   return (
     <>
       <GameLayout title="🎮 لعبة المتاهة">
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center w-full">
+          <AlgorithmTabs
+            selected={selectedAlgorithm}
+            onSelect={setSelectedAlgorithm}
+          />
+
+          <GameStats
+            moves={gameState.moves}
+            totalCost={gameState.totalCost}
+            algorithm={selectedAlgorithm}
+          />
+
           <GameControls onRestart={regenerateMaze} />
 
           <Maze
@@ -73,6 +93,7 @@ function App() {
             visitedCells={visitedCells}
             monsters={monsters}
             isWinner={gameState.status === GAME_STATUS.WON}
+            algorithm={selectedAlgorithm}
           />
 
           <div className="mt-4 flex items-center gap-4 text-sm">
@@ -84,10 +105,6 @@ function App() {
               <span>⭐</span>
               <span>اوصل للنجمة!</span>
             </div>
-            <div className="flex items-center gap-2 text-blue-400">
-              <span>💤</span>
-              <span>راحة 5 ثواني</span>
-            </div>
           </div>
         </div>
       </GameLayout>
@@ -96,6 +113,8 @@ function App() {
         isOpen={gameState.status === GAME_STATUS.WON}
         onPlayAgain={handlePlayAgain}
         moves={gameState.moves}
+        totalCost={gameState.totalCost}
+        algorithm={selectedAlgorithm}
       />
 
       <LoseModal

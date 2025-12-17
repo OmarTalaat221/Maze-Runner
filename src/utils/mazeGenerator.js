@@ -1,5 +1,13 @@
 import { CELL_TYPES, GAME_CONFIG } from "./constants";
 
+function getRandomCost() {
+  return (
+    Math.floor(
+      Math.random() * (GAME_CONFIG.MAX_COST - GAME_CONFIG.MIN_COST + 1)
+    ) + GAME_CONFIG.MIN_COST
+  );
+}
+
 export function generateMaze(
   width = GAME_CONFIG.MAZE_WIDTH,
   height = GAME_CONFIG.MAZE_HEIGHT
@@ -11,11 +19,16 @@ export function generateMaze(
     .fill(null)
     .map(() => Array(w).fill(CELL_TYPES.WALL));
 
+  const costs = Array(h)
+    .fill(null)
+    .map(() => Array(w).fill(Infinity));
+
   const startX = 1;
   const startY = 1;
 
   const stack = [{ x: startX, y: startY }];
   maze[startY][startX] = CELL_TYPES.PATH;
+  costs[startY][startX] = 0;
 
   const directions = [
     { dx: 0, dy: -2 },
@@ -50,17 +63,24 @@ export function generateMaze(
       maze[next.wallY][next.wallX] = CELL_TYPES.PATH;
       maze[next.y][next.x] = CELL_TYPES.PATH;
 
+      costs[next.wallY][next.wallX] = getRandomCost();
+      costs[next.y][next.x] = getRandomCost();
+
       stack.push({ x: next.x, y: next.y });
     } else {
       stack.pop();
     }
   }
 
+  createExtraPaths(maze, costs, w, h);
+
   maze[startY][startX] = CELL_TYPES.START;
+  costs[startY][startX] = 0;
 
   const exitX = w - 2;
   const exitY = h - 2;
   maze[exitY][exitX] = CELL_TYPES.EXIT;
+  costs[exitY][exitX] = 0;
 
   const monsterSpawns = generateMonsterSpawns(
     maze,
@@ -74,19 +94,56 @@ export function generateMaze(
   console.log(`📐 Size: ${w}x${h}`);
   console.log(`🟢 Start: (${startX}, ${startY})`);
   console.log(`⭐ Exit: (${exitX}, ${exitY})`);
-  console.log(`👾 Monsters: ${monsterSpawns.length}`);
-  monsterSpawns.forEach((m, i) =>
-    console.log(`   Monster ${i + 1}: (${m.x}, ${m.y})`)
+  console.log(`💰 Cost range: ${GAME_CONFIG.MIN_COST}-${GAME_CONFIG.MAX_COST}`);
+  console.log(
+    `🔄 Multiple paths: Enabled (${Math.floor(
+      GAME_CONFIG.EXTRA_PATHS_PERCENTAGE * 100
+    )}% extra)`
   );
 
   return {
     grid: maze,
+    costs,
     width: w,
     height: h,
     start: { x: startX, y: startY },
     exit: { x: exitX, y: exitY },
     monsterSpawns,
   };
+}
+
+function createExtraPaths(maze, costs, width, height) {
+  const walls = [];
+
+  for (let y = 1; y < height - 1; y++) {
+    for (let x = 1; x < width - 1; x++) {
+      if (maze[y][x] === CELL_TYPES.WALL) {
+        let pathNeighbors = 0;
+        if (maze[y - 1][x] === CELL_TYPES.PATH) pathNeighbors++;
+        if (maze[y + 1][x] === CELL_TYPES.PATH) pathNeighbors++;
+        if (maze[y][x - 1] === CELL_TYPES.PATH) pathNeighbors++;
+        if (maze[y][x + 1] === CELL_TYPES.PATH) pathNeighbors++;
+
+        if (pathNeighbors >= 2) {
+          walls.push({ x, y });
+        }
+      }
+    }
+  }
+
+  const wallsToRemove = Math.floor(
+    walls.length * GAME_CONFIG.EXTRA_PATHS_PERCENTAGE
+  );
+
+  for (let i = 0; i < wallsToRemove; i++) {
+    const randomIndex = Math.floor(Math.random() * walls.length);
+    const wall = walls[randomIndex];
+
+    maze[wall.y][wall.x] = CELL_TYPES.PATH;
+    costs[wall.y][wall.x] = getRandomCost();
+
+    walls.splice(randomIndex, 1);
+  }
 }
 
 function generateMonsterSpawns(maze, width, height, start, exit) {

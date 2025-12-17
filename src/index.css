@@ -13,7 +13,7 @@ body,
 #root {
   width: 100%;
   height: 100%;
-  overflow: hidden;
+  /* overflow: hidden; */
 }
 
 body {
@@ -152,4 +152,10 @@ body::after {
 
 .animate-shake {
   animation: shake 0.5s ease-in-out;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
 }

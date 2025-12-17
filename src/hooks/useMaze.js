@@ -10,6 +10,7 @@ export function useMaze() {
   const [gameState, setGameState] = useState({
     status: GAME_STATUS.PLAYING,
     moves: 0,
+    totalCost: 0,
     startTime: Date.now(),
   });
 
@@ -21,12 +22,17 @@ export function useMaze() {
     setGameState({
       status: GAME_STATUS.PLAYING,
       moves: 0,
+      totalCost: 0,
       startTime: Date.now(),
     });
   }, []);
 
-  const incrementMoves = useCallback(() => {
-    setGameState((prev) => ({ ...prev, moves: prev.moves + 1 }));
+  const incrementMoves = useCallback((cost = 1) => {
+    setGameState((prev) => ({
+      ...prev,
+      moves: prev.moves + 1,
+      totalCost: prev.totalCost + cost,
+    }));
   }, []);
 
   const setWin = useCallback(() => {

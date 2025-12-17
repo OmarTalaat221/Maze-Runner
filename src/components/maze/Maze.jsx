@@ -2,7 +2,7 @@ import { memo, useMemo } from "react";
 import Cell from "./Cell";
 import Player from "./Player";
 import Monster from "./Monster";
-import { GAME_CONFIG } from "../../utils/constants";
+import { GAME_CONFIG, ALGORITHMS } from "../../utils/constants";
 
 const Maze = memo(function Maze({
   mazeData,
@@ -11,9 +11,12 @@ const Maze = memo(function Maze({
   visitedCells,
   monsters = [],
   isWinner = false,
+  algorithm = ALGORITHMS.BFS,
 }) {
-  const { grid, width, height } = mazeData;
+  const { grid, costs, width, height } = mazeData;
   const cellSize = GAME_CONFIG.CELL_SIZE;
+
+  const showCost = algorithm === ALGORITHMS.UCS;
 
   const mazeStyle = useMemo(
     () => ({
@@ -36,13 +39,15 @@ const Maze = memo(function Maze({
             key={`${x}-${y}`}
             type={grid[y][x]}
             isVisited={isVisited}
+            cost={costs[y][x]}
+            showCost={showCost}
             size={cellSize}
           />
         );
       }
     }
     return result;
-  }, [grid, width, height, cellSize, visitedCells]);
+  }, [grid, costs, width, height, cellSize, visitedCells, showCost]);
 
   return (
     <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-purple-500/20 border-4 border-slate-700/50">

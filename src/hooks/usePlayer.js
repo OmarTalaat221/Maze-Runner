@@ -3,7 +3,7 @@ import { canMoveTo } from "../utils/mazeGenerator";
 import { analyzePlayerMove } from "../utils/pathfinding";
 import { CELL_TYPES } from "../utils/constants";
 
-export function usePlayer(mazeData, onMove, onWin, monsters) {
+export function usePlayer(mazeData, onMove, onWin, monsters, algorithm) {
   const [position, setPosition] = useState(mazeData.start);
   const [direction, setDirection] = useState(0);
   const [visitedCells, setVisitedCells] = useState(
@@ -11,9 +11,14 @@ export function usePlayer(mazeData, onMove, onWin, monsters) {
   );
 
   const monstersRef = useRef(monsters);
+  const algorithmRef = useRef(algorithm);
 
   const updateMonsters = useCallback((newMonsters) => {
     monstersRef.current = newMonsters;
+  }, []);
+
+  const updateAlgorithm = useCallback((newAlgorithm) => {
+    algorithmRef.current = newAlgorithm;
   }, []);
 
   const move = useCallback(
@@ -30,13 +35,20 @@ export function usePlayer(mazeData, onMove, onWin, monsters) {
 
         const newPos = { x: newX, y: newY };
 
-        analyzePlayerMove(mazeData, current, newPos, monstersRef.current || []);
+        analyzePlayerMove(
+          mazeData,
+          current,
+          newPos,
+          monstersRef.current || [],
+          algorithmRef.current
+        );
 
         setVisitedCells((prev) => new Set([...prev, `${newX},${newY}`]));
 
-        onMove?.();
+        const stepCost = mazeData.costs[newY][newX];
+        onMove?.(stepCost);
 
-        if (mazeData.grid[newY][newX] === CELL_TYPES.EXIT) {
+        if (newX === mazeData.exit.x && newY === mazeData.exit.y) {
           onWin?.();
         }
 
@@ -59,5 +71,6 @@ export function usePlayer(mazeData, onMove, onWin, monsters) {
     move,
     resetPosition,
     updateMonsters,
+    updateAlgorithm,
   };
 }
