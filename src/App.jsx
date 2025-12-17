@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useMemo } from "react";
 import GameLayout from "./components/layout/GameLayout";
 import Maze from "./components/maze/Maze";
 import GameControls from "./components/ui/GameControls";
@@ -10,6 +10,7 @@ import { useMaze } from "./hooks/useMaze";
 import { usePlayer } from "./hooks/usePlayer";
 import { useMonsters } from "./hooks/useMonsters";
 import { useKeyboard } from "./hooks/useKeyboard";
+import { getPath } from "./utils/pathfinding";
 import { GAME_STATUS, ALGORITHMS } from "./utils/constants";
 
 function App() {
@@ -40,6 +41,12 @@ function App() {
     gameState.status,
     setLose
   );
+
+  const currentPath = useMemo(() => {
+    if (gameState.status !== GAME_STATUS.PLAYING) return [];
+    const result = getPath(mazeData, position, selectedAlgorithm);
+    return result.path || [];
+  }, [mazeData, position, selectedAlgorithm, gameState.status]);
 
   useEffect(() => {
     updateMonsters(monsters);
@@ -94,6 +101,7 @@ function App() {
             monsters={monsters}
             isWinner={gameState.status === GAME_STATUS.WON}
             algorithm={selectedAlgorithm}
+            currentPath={currentPath}
           />
 
           <div className="mt-4 flex items-center gap-4 text-sm">
@@ -101,9 +109,13 @@ function App() {
               <span>👾</span>
               <span>الوحوش: {monsters.length}</span>
             </div>
+            <div className="flex items-center gap-2 text-green-400">
+              <span>🟢</span>
+              <span>المسار الأمثل</span>
+            </div>
             <div className="flex items-center gap-2 text-yellow-400">
               <span>⭐</span>
-              <span>اوصل للنجمة!</span>
+              <span>الهدف</span>
             </div>
           </div>
         </div>

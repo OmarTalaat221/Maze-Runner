@@ -12,11 +12,15 @@ const Maze = memo(function Maze({
   monsters = [],
   isWinner = false,
   algorithm = ALGORITHMS.BFS,
+  currentPath = [],
 }) {
   const { grid, costs, width, height } = mazeData;
   const cellSize = GAME_CONFIG.CELL_SIZE;
-
   const showCost = algorithm === ALGORITHMS.UCS;
+
+  const pathSet = useMemo(() => {
+    return new Set(currentPath.map((p) => `${p.x},${p.y}`));
+  }, [currentPath]);
 
   const mazeStyle = useMemo(
     () => ({
@@ -34,6 +38,7 @@ const Maze = memo(function Maze({
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
         const isVisited = visitedCells.has(`${x},${y}`);
+        const isPath = pathSet.has(`${x},${y}`);
         result.push(
           <Cell
             key={`${x}-${y}`}
@@ -41,13 +46,14 @@ const Maze = memo(function Maze({
             isVisited={isVisited}
             cost={costs[y][x]}
             showCost={showCost}
+            isPath={isPath}
             size={cellSize}
           />
         );
       }
     }
     return result;
-  }, [grid, costs, width, height, cellSize, visitedCells, showCost]);
+  }, [grid, costs, width, height, cellSize, visitedCells, showCost, pathSet]);
 
   return (
     <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-purple-500/20 border-4 border-slate-700/50">

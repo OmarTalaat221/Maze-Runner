@@ -132,6 +132,17 @@ export function getNextMove(maze, from, to) {
   return r.path.length > 0 ? { x: r.path[0].x, y: r.path[0].y } : from;
 }
 
+export function getPath(maze, playerPos, algo) {
+  if (algo === ALGORITHMS.BFS) {
+    return findPathBFS(maze, playerPos, maze.exit);
+  } else if (algo === ALGORITHMS.DFS) {
+    return findPathDFS(maze, playerPos, maze.exit);
+  } else if (algo === ALGORITHMS.UCS) {
+    return findPathUCS(maze, playerPos, maze.exit);
+  }
+  return { path: [] };
+}
+
 export function analyzePlayerMove(maze, oldPos, newPos, monsters, algo) {
   const stepCost = maze.costs[newPos.y][newPos.x];
 
@@ -171,6 +182,8 @@ export function analyzePlayerMove(maze, oldPos, newPos, monsters, algo) {
 
   console.log("\nMap:");
   drawMap(maze, newPos, monsters, result.path);
+
+  console.log("========================================\n");
 }
 
 function drawMap(maze, player, monsters, path) {
