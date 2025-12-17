@@ -1,425 +1,205 @@
 import { CELL_TYPES, ALGORITHMS } from "./constants";
 
+const DIRS = [
+  { x: 0, y: -1, name: "UP" },
+  { x: 0, y: 1, name: "DOWN" },
+  { x: -1, y: 0, name: "LEFT" },
+  { x: 1, y: 0, name: "RIGHT" },
+];
+
 export function findPathBFS(maze, start, target) {
   const { grid, width, height } = maze;
-
-  const queue = [{ ...start, path: [] }];
-  const visited = new Set();
-  visited.add(`${start.x},${start.y}`);
-
-  const directions = [
-    { x: 0, y: -1, name: "UP" },
-    { x: 0, y: 1, name: "DOWN" },
-    { x: -1, y: 0, name: "LEFT" },
-    { x: 1, y: 0, name: "RIGHT" },
-  ];
-
-  let iterations = 0;
+  const queue = [{ x: start.x, y: start.y, path: [] }];
+  const visited = new Set([`${start.x},${start.y}`]);
 
   while (queue.length > 0) {
-    iterations++;
     const current = queue.shift();
 
     if (current.x === target.x && current.y === target.y) {
-      return {
-        path: current.path,
-        iterations,
-        explored: visited.size,
-      };
+      return { path: current.path, explored: visited.size };
     }
 
-    for (const dir of directions) {
-      const newX = current.x + dir.x;
-      const newY = current.y + dir.y;
-      const key = `${newX},${newY}`;
+    for (const dir of DIRS) {
+      const nx = current.x + dir.x;
+      const ny = current.y + dir.y;
+      const key = `${nx},${ny}`;
 
       if (
-        newX >= 0 &&
-        newX < width &&
-        newY >= 0 &&
-        newY < height &&
+        nx > 0 &&
+        nx < width - 1 &&
+        ny > 0 &&
+        ny < height - 1 &&
         !visited.has(key) &&
-        grid[newY][newX] !== CELL_TYPES.WALL
+        grid[ny][nx] !== CELL_TYPES.WALL
       ) {
         visited.add(key);
         queue.push({
-          x: newX,
-          y: newY,
-          path: [...current.path, { x: newX, y: newY, direction: dir.name }],
+          x: nx,
+          y: ny,
+          path: [...current.path, { x: nx, y: ny, dir: dir.name }],
         });
       }
     }
   }
-
-  return { path: [], iterations, explored: visited.size };
+  return { path: [], explored: visited.size };
 }
 
 export function findPathDFS(maze, start, target) {
   const { grid, width, height } = maze;
-
-  const stack = [{ ...start, path: [] }];
-  const visited = new Set();
-  visited.add(`${start.x},${start.y}`);
-
-  const directions = [
-    { x: 0, y: -1, name: "UP" },
-    { x: 0, y: 1, name: "DOWN" },
-    { x: -1, y: 0, name: "LEFT" },
-    { x: 1, y: 0, name: "RIGHT" },
-  ];
-
-  let iterations = 0;
+  const stack = [{ x: start.x, y: start.y, path: [] }];
+  const visited = new Set([`${start.x},${start.y}`]);
 
   while (stack.length > 0) {
-    iterations++;
     const current = stack.pop();
 
     if (current.x === target.x && current.y === target.y) {
-      return {
-        path: current.path,
-        iterations,
-        explored: visited.size,
-      };
+      return { path: current.path, explored: visited.size };
     }
 
-    for (const dir of directions) {
-      const newX = current.x + dir.x;
-      const newY = current.y + dir.y;
-      const key = `${newX},${newY}`;
+    for (const dir of DIRS) {
+      const nx = current.x + dir.x;
+      const ny = current.y + dir.y;
+      const key = `${nx},${ny}`;
 
       if (
-        newX >= 0 &&
-        newX < width &&
-        newY >= 0 &&
-        newY < height &&
+        nx > 0 &&
+        nx < width - 1 &&
+        ny > 0 &&
+        ny < height - 1 &&
         !visited.has(key) &&
-        grid[newY][newX] !== CELL_TYPES.WALL
+        grid[ny][nx] !== CELL_TYPES.WALL
       ) {
         visited.add(key);
         stack.push({
-          x: newX,
-          y: newY,
-          path: [...current.path, { x: newX, y: newY, direction: dir.name }],
+          x: nx,
+          y: ny,
+          path: [...current.path, { x: nx, y: ny, dir: dir.name }],
         });
       }
     }
   }
-
-  return { path: [], iterations, explored: visited.size };
+  return { path: [], explored: visited.size };
 }
 
 export function findPathUCS(maze, start, target) {
   const { grid, costs, width, height } = maze;
+  const queue = [{ x: start.x, y: start.y, path: [], cost: 0 }];
+  const visited = new Map();
 
-  const priorityQueue = [{ ...start, path: [], cost: 0 }];
-  const visited = new Set();
-  const costMap = new Map();
-  costMap.set(`${start.x},${start.y}`, 0);
+  while (queue.length > 0) {
+    let minIdx = 0;
+    for (let i = 1; i < queue.length; i++) {
+      if (queue[i].cost < queue[minIdx].cost) minIdx = i;
+    }
+    const current = queue.splice(minIdx, 1)[0];
+    const key = `${current.x},${current.y}`;
 
-  const directions = [
-    { x: 0, y: -1, name: "UP" },
-    { x: 0, y: 1, name: "DOWN" },
-    { x: -1, y: 0, name: "LEFT" },
-    { x: 1, y: 0, name: "RIGHT" },
-  ];
-
-  let iterations = 0;
-
-  while (priorityQueue.length > 0) {
-    iterations++;
-
-    priorityQueue.sort((a, b) => a.cost - b.cost);
-    const current = priorityQueue.shift();
-
-    const currentKey = `${current.x},${current.y}`;
-    if (visited.has(currentKey)) continue;
-    visited.add(currentKey);
+    if (visited.has(key)) continue;
+    visited.set(key, current.cost);
 
     if (current.x === target.x && current.y === target.y) {
-      return {
-        path: current.path,
-        iterations,
-        explored: visited.size,
-        cost: current.cost,
-      };
+      return { path: current.path, explored: visited.size, cost: current.cost };
     }
 
-    for (const dir of directions) {
-      const newX = current.x + dir.x;
-      const newY = current.y + dir.y;
-      const key = `${newX},${newY}`;
+    for (const dir of DIRS) {
+      const nx = current.x + dir.x;
+      const ny = current.y + dir.y;
+      const nkey = `${nx},${ny}`;
 
       if (
-        newX >= 0 &&
-        newX < width &&
-        newY >= 0 &&
-        newY < height &&
-        !visited.has(key) &&
-        grid[newY][newX] !== CELL_TYPES.WALL
+        nx > 0 &&
+        nx < width - 1 &&
+        ny > 0 &&
+        ny < height - 1 &&
+        !visited.has(nkey) &&
+        grid[ny][nx] !== CELL_TYPES.WALL
       ) {
-        const stepCost = costs[newY][newX];
-        const newCost = current.cost + stepCost;
-
-        if (!costMap.has(key) || newCost < costMap.get(key)) {
-          costMap.set(key, newCost);
-          priorityQueue.push({
-            x: newX,
-            y: newY,
-            path: [
-              ...current.path,
-              { x: newX, y: newY, direction: dir.name, cost: stepCost },
-            ],
-            cost: newCost,
-          });
-        }
+        const c = costs[ny][nx];
+        queue.push({
+          x: nx,
+          y: ny,
+          path: [...current.path, { x: nx, y: ny, dir: dir.name, cost: c }],
+          cost: current.cost + c,
+        });
       }
     }
   }
-
-  return { path: [], iterations, explored: visited.size, cost: Infinity };
+  return { path: [], explored: visited.size, cost: Infinity };
 }
 
-function countAllPaths(maze, start, target) {
-  const { grid, width, height } = maze;
-  let pathCount = 0;
-
-  function dfs(x, y, visited) {
-    if (x === target.x && y === target.y) {
-      pathCount++;
-      return;
-    }
-
-    const directions = [
-      { x: 0, y: -1 },
-      { x: 0, y: 1 },
-      { x: -1, y: 0 },
-      { x: 1, y: 0 },
-    ];
-
-    for (const dir of directions) {
-      const newX = x + dir.x;
-      const newY = y + dir.y;
-      const key = `${newX},${newY}`;
-
-      if (
-        newX >= 0 &&
-        newX < width &&
-        newY >= 0 &&
-        newY < height &&
-        !visited.has(key) &&
-        grid[newY][newX] !== CELL_TYPES.WALL
-      ) {
-        visited.add(key);
-        dfs(newX, newY, visited);
-        visited.delete(key);
-      }
-    }
-  }
-
-  const visited = new Set([`${start.x},${start.y}`]);
-  dfs(start.x, start.y, visited);
-
-  return Math.min(pathCount, 999);
+export function getNextMove(maze, from, to) {
+  const r = findPathBFS(maze, from, to);
+  return r.path.length > 0 ? { x: r.path[0].x, y: r.path[0].y } : from;
 }
 
-export function getNextMove(maze, monsterPos, playerPos) {
-  const result = findPathBFS(maze, monsterPos, playerPos);
-
-  if (result.path.length > 0) {
-    return { x: result.path[0].x, y: result.path[0].y };
-  }
-
-  return monsterPos;
-}
-
-export function analyzePlayerMove(
-  maze,
-  oldPos,
-  newPos,
-  monsters,
-  algorithm = ALGORITHMS.BFS
-) {
-  console.log("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-  console.log("🐱 PLAYER MOVED");
-  console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-
-  const direction = getDirectionName(oldPos, newPos);
+export function analyzePlayerMove(maze, oldPos, newPos, monsters, algo) {
   const stepCost = maze.costs[newPos.y][newPos.x];
+
+  console.log("\n========================================");
   console.log(
-    `From (${oldPos.x}, ${oldPos.y}) → To (${newPos.x}, ${newPos.y})`
+    `PLAYER: (${oldPos.x},${oldPos.y}) -> (${newPos.x},${newPos.y}) | Cost: ${stepCost}`
   );
-  console.log(`Direction: ${direction}`);
-  console.log(`Step Cost: ${stepCost}\n`);
+  console.log("========================================");
 
-  if (algorithm === ALGORITHMS.BFS) {
-    analyzeBFS(maze, newPos, monsters);
-  } else if (algorithm === ALGORITHMS.DFS) {
-    analyzeDFS(maze, newPos, monsters);
-  } else if (algorithm === ALGORITHMS.UCS) {
-    analyzeUCS(maze, newPos, monsters);
+  let result;
+
+  if (algo === ALGORITHMS.BFS) {
+    console.log("Algorithm: BFS (Queue - FIFO)");
+    result = findPathBFS(maze, newPos, maze.exit);
+  } else if (algo === ALGORITHMS.DFS) {
+    console.log("Algorithm: DFS (Stack - LIFO)");
+    result = findPathDFS(maze, newPos, maze.exit);
+  } else if (algo === ALGORITHMS.UCS) {
+    console.log("Algorithm: UCS (Priority Queue - Lowest Cost)");
+    result = findPathUCS(maze, newPos, maze.exit);
   }
-
-  console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
-}
-
-function analyzeBFS(maze, playerPos, monsters) {
-  console.log("🔵 BFS Algorithm: Breadth-First Search");
-  console.log("─────────────────────────────────────────");
-  console.log("Finding shortest path (by steps)...\n");
-
-  const result = findPathBFS(maze, playerPos, maze.exit);
-  const pathCount = countAllPaths(maze, playerPos, maze.exit);
 
   if (result.path.length > 0) {
-    console.log(`✅ Shortest Path Found`);
-    console.log(`   Steps: ${result.path.length}`);
-    console.log(`   Iterations: ${result.iterations}`);
-    console.log(`   Cells explored: ${result.explored}`);
     console.log(
-      `   🔄 Alternative paths available: ${pathCount}${
-        pathCount >= 999 ? "+" : ""
-      }\n`
+      `Result: ${result.path.length} steps | Explored: ${result.explored} cells`
     );
+    if (result.cost) console.log(`Total Cost: ${result.cost}`);
 
-    const simplePath = result.path
+    const pathStr = result.path
       .slice(0, 8)
-      .map((p) => p.direction)
-      .join(" → ");
-    console.log(
-      `Path: ${simplePath}${result.path.length > 8 ? " → ..." : ""}\n`
-    );
-
-    drawSimpleMap(maze, playerPos, monsters, result.path);
-    printStatus(playerPos, monsters, result.path);
+      .map((p) => p.dir[0])
+      .join("-");
+    console.log(`Path: ${pathStr}${result.path.length > 8 ? "-..." : ""}`);
   } else {
-    console.log("❌ No path found!");
+    console.log("No path found!");
   }
+
+  console.log("\nMap:");
+  drawMap(maze, newPos, monsters, result.path);
 }
 
-function analyzeDFS(maze, playerPos, monsters) {
-  console.log("🟢 DFS Algorithm: Depth-First Search");
-  console.log("─────────────────────────────────────────");
-  console.log("Finding any path (depth first)...\n");
-
-  const result = findPathDFS(maze, playerPos, maze.exit);
-  const pathCount = countAllPaths(maze, playerPos, maze.exit);
-
-  if (result.path.length > 0) {
-    console.log(`✅ Path Found`);
-    console.log(`   Steps: ${result.path.length}`);
-    console.log(`   Iterations: ${result.iterations}`);
-    console.log(`   Cells explored: ${result.explored}`);
-    console.log(
-      `   🔄 Alternative paths available: ${pathCount}${
-        pathCount >= 999 ? "+" : ""
-      }\n`
-    );
-
-    const simplePath = result.path
-      .slice(0, 8)
-      .map((p) => p.direction)
-      .join(" → ");
-    console.log(
-      `Path: ${simplePath}${result.path.length > 8 ? " → ..." : ""}\n`
-    );
-
-    console.log("⚠️ Note: DFS may not find the shortest path!\n");
-
-    drawSimpleMap(maze, playerPos, monsters, result.path);
-    printStatus(playerPos, monsters, result.path);
-  } else {
-    console.log("❌ No path found!");
-  }
-}
-
-function analyzeUCS(maze, playerPos, monsters) {
-  console.log("🟡 UCS Algorithm: Uniform Cost Search");
-  console.log("─────────────────────────────────────────");
-  console.log("Finding cheapest path...\n");
-
-  const result = findPathUCS(maze, playerPos, maze.exit);
-  const pathCount = countAllPaths(maze, playerPos, maze.exit);
-
-  if (result.path.length > 0) {
-    console.log(`✅ Cheapest Path Found`);
-    console.log(`   Steps: ${result.path.length}`);
-    console.log(`   Total Cost: ${result.cost}`);
-    console.log(
-      `   Average cost/step: ${(result.cost / result.path.length).toFixed(2)}`
-    );
-    console.log(`   Iterations: ${result.iterations}`);
-    console.log(`   Cells explored: ${result.explored}`);
-    console.log(
-      `   🔄 Alternative paths available: ${pathCount}${
-        pathCount >= 999 ? "+" : ""
-      }\n`
-    );
-
-    const simplePath = result.path
-      .slice(0, 8)
-      .map((p) => `${p.direction}(${p.cost})`)
-      .join(" → ");
-    console.log(
-      `Path: ${simplePath}${result.path.length > 8 ? " → ..." : ""}\n`
-    );
-
-    console.log("💡 Note: UCS guarantees the lowest total cost!\n");
-
-    drawSimpleMap(maze, playerPos, monsters, result.path);
-    printStatus(playerPos, monsters, result.path);
-  } else {
-    console.log("❌ No path found!");
-  }
-}
-
-function getDirectionName(from, to) {
-  if (to.x > from.x) return "➡️ RIGHT";
-  if (to.x < from.x) return "⬅️ LEFT";
-  if (to.y > from.y) return "⬇️ DOWN";
-  if (to.y < from.y) return "⬆️ UP";
-  return "⏹️ STAY";
-}
-
-function drawSimpleMap(maze, playerPos, monsters, path) {
+function drawMap(maze, player, monsters, path) {
   const { grid, width, height, exit } = maze;
+  const pathSet = new Set(path.map((p) => `${p.x},${p.y}`));
 
-  console.log("🗺️ Map:");
-
+  let map = "";
   for (let y = 0; y < height; y++) {
     let row = "";
     for (let x = 0; x < width; x++) {
-      const isPlayer = playerPos.x === x && playerPos.y === y;
-      const isMonster = monsters.some(
-        (m) => m.position.x === x && m.position.y === y
-      );
-      const isExit = exit.x === x && exit.y === y;
-      const isPath = path.some((p) => p.x === x && p.y === y);
+      const key = `${x},${y}`;
 
-      if (isPlayer) row += "🐱";
-      else if (isMonster) row += "👾";
-      else if (isExit) row += "⭐";
-      else if (isPath) row += "··";
-      else if (grid[y][x] === CELL_TYPES.WALL) row += "██";
-      else row += "  ";
+      if (player.x === x && player.y === y) {
+        row += "P ";
+      } else if (
+        monsters.some((m) => m.position.x === x && m.position.y === y)
+      ) {
+        row += "M ";
+      } else if (exit.x === x && exit.y === y) {
+        row += "* ";
+      } else if (pathSet.has(key)) {
+        row += ". ";
+      } else if (grid[y][x] === CELL_TYPES.WALL) {
+        row += "# ";
+      } else {
+        row += "  ";
+      }
     }
-    console.log(row);
+    map += row + "\n";
   }
-}
-
-function printStatus(playerPos, monsters, path) {
-  console.log("\n📊 Status:");
-  console.log(`   Distance to ⭐: ${path.length} steps`);
-  if (path.length > 0) {
-    console.log(`   Best next move: ${path[0].direction}`);
-  }
-
-  monsters.forEach((m, i) => {
-    const dist =
-      Math.abs(playerPos.x - m.position.x) +
-      Math.abs(playerPos.y - m.position.y);
-    const danger = dist <= 3 ? "🔴" : dist <= 6 ? "🟡" : "🟢";
-    console.log(
-      `   Monster ${i + 1}: ${dist} cells ${danger}${m.isResting ? " 💤" : ""}`
-    );
-  });
+  console.log(map);
 }
