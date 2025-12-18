@@ -33,7 +33,10 @@ const WinModal = memo(function WinModal({
 
   if (!isOpen) return null;
 
-  const showCost = algorithm === ALGORITHMS.UCS;
+  const showCost =
+    algorithm === ALGORITHMS.UCS ||
+    algorithm === ALGORITHMS.IDS ||
+    algorithm === ALGORITHMS.A_STAR_MANHATTAN;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center modal-backdrop">
@@ -130,21 +133,12 @@ const WinModal = memo(function WinModal({
                 stroke="#2D3436"
                 strokeWidth="2"
               />
-              <text x="10" y="15" fontSize="12">
-                ⭐
-              </text>
-              <text x="80" y="15" fontSize="12">
-                ⭐
-              </text>
-              <text x="45" y="5" fontSize="10">
-                ✨
-              </text>
             </svg>
           </div>
 
           <button
             onClick={onPlayAgain}
-            className="group relative px-8 py-4 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 text-white font-bold text-lg rounded-2xl transform transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-purple-500/50 focus:outline-none focus:ring-4 focus:ring-purple-500/50"
+            className="group relative px-8 py-4 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 text-white font-bold text-lg rounded-2xl transform transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-purple-500/50"
           >
             <span className="flex items-center gap-2">
               <svg
@@ -162,24 +156,7 @@ const WinModal = memo(function WinModal({
               </svg>
               متاهة جديدة
             </span>
-            <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 blur-lg opacity-50 group-hover:opacity-75 transition-opacity -z-10" />
           </button>
-        </div>
-
-        <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-          <span className="text-2xl animate-pulse">🌟</span>
-          <span
-            className="text-2xl animate-pulse"
-            style={{ animationDelay: "0.2s" }}
-          >
-            💫
-          </span>
-          <span
-            className="text-2xl animate-pulse"
-            style={{ animationDelay: "0.4s" }}
-          >
-            🌟
-          </span>
         </div>
       </div>
     </div>

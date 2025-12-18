@@ -4,17 +4,24 @@ import Maze from "./components/maze/Maze";
 import GameControls from "./components/ui/GameControls";
 import GameStats from "./components/ui/GameStats";
 import AlgorithmTabs from "./components/ui/AlgorithmTabs";
+import ControlPanel from "./components/ui/ControlPanel";
+import HeuristicInfo from "./components/ui/HeuristicInfo";
+import LiveHeuristicDisplay from "./components/ui/LiveHeuristicDisplay";
+import PathStepsViewer from "./components/ui/PathStepsViewer";
+import AlgorithmExplainer from "./components/ui/Sidebar";
 import WinModal from "./components/ui/WinModal";
 import LoseModal from "./components/ui/LoseModal";
 import { useMaze } from "./hooks/useMaze";
 import { usePlayer } from "./hooks/usePlayer";
 import { useMonsters } from "./hooks/useMonsters";
 import { useKeyboard } from "./hooks/useKeyboard";
-import { getPath } from "./utils/pathfinding";
+import { getPath, setConsoleEnabled } from "./utils/pathfinding";
 import { GAME_STATUS, ALGORITHMS } from "./utils/constants";
 
 function App() {
   const [selectedAlgorithm, setSelectedAlgorithm] = useState(ALGORITHMS.BFS);
+  const [explainerOpen, setExplainerOpen] = useState(false);
+  const [consoleEnabled, setConsoleEnabledState] = useState(true);
 
   const {
     mazeData,
@@ -44,9 +51,9 @@ function App() {
 
   const currentPath = useMemo(() => {
     if (gameState.status !== GAME_STATUS.PLAYING) return [];
-    const result = getPath(mazeData, position, selectedAlgorithm);
+    const result = getPath(mazeData, position, selectedAlgorithm, monsters);
     return result.path || [];
-  }, [mazeData, position, selectedAlgorithm, gameState.status]);
+  }, [mazeData, position, selectedAlgorithm, gameState.status, monsters]);
 
   useEffect(() => {
     updateMonsters(monsters);
@@ -55,6 +62,10 @@ function App() {
   useEffect(() => {
     updateAlgorithm(selectedAlgorithm);
   }, [selectedAlgorithm, updateAlgorithm]);
+
+  useEffect(() => {
+    setConsoleEnabled(consoleEnabled);
+  }, [consoleEnabled]);
 
   const handleMove = useCallback(
     (dx, dy, rotation) => {
@@ -85,6 +96,27 @@ function App() {
             onSelect={setSelectedAlgorithm}
           />
 
+          <ControlPanel
+            onOpenExplainer={() => setExplainerOpen(true)}
+            consoleEnabled={consoleEnabled}
+            onToggleConsole={setConsoleEnabledState}
+          />
+
+          {/* عرض القيم الحية للـ Heuristic */}
+          <LiveHeuristicDisplay
+            algorithm={selectedAlgorithm}
+            currentPath={currentPath}
+            totalCost={gameState.totalCost}
+          />
+
+          {/* معلومات الخطوة التالية */}
+          <HeuristicInfo
+            algorithm={selectedAlgorithm}
+            currentPath={currentPath}
+            playerPosition={position}
+            mazeData={mazeData}
+          />
+
           <GameStats
             moves={gameState.moves}
             totalCost={gameState.totalCost}
@@ -100,6 +132,12 @@ function App() {
             visitedCells={visitedCells}
             monsters={monsters}
             isWinner={gameState.status === GAME_STATUS.WON}
+            algorithm={selectedAlgorithm}
+            currentPath={currentPath}
+          />
+
+          {/* عرض تفاصيل المسار */}
+          <PathStepsViewer
             algorithm={selectedAlgorithm}
             currentPath={currentPath}
           />
@@ -120,6 +158,12 @@ function App() {
           </div>
         </div>
       </GameLayout>
+
+      <AlgorithmExplainer
+        algorithm={selectedAlgorithm}
+        isOpen={explainerOpen}
+        onClose={() => setExplainerOpen(false)}
+      />
 
       <WinModal
         isOpen={gameState.status === GAME_STATUS.WON}

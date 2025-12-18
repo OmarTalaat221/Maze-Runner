@@ -16,7 +16,12 @@ const Maze = memo(function Maze({
 }) {
   const { grid, costs, width, height } = mazeData;
   const cellSize = GAME_CONFIG.CELL_SIZE;
-  const showCost = algorithm === ALGORITHMS.UCS;
+  const showCost =
+    algorithm === ALGORITHMS.UCS ||
+    algorithm === ALGORITHMS.IDS ||
+    algorithm === ALGORITHMS.A_STAR_MANHATTAN ||
+    algorithm === ALGORITHMS.A_STAR_DANGER ||
+    algorithm === ALGORITHMS.HILL_CLIMBING;
 
   const pathSet = useMemo(() => {
     return new Set(currentPath.map((p) => `${p.x},${p.y}`));

@@ -3,28 +3,13 @@ import { ALGORITHMS, ALGORITHM_NAMES } from "../../utils/constants";
 
 const AlgorithmTabs = memo(function AlgorithmTabs({ selected, onSelect }) {
   const tabs = [
-    { id: ALGORITHMS.BFS, name: "BFS", color: "blue" },
-    { id: ALGORITHMS.DFS, name: "DFS", color: "green" },
-    { id: ALGORITHMS.UCS, name: "UCS", color: "yellow" },
-    { id: ALGORITHMS.IDS, name: "IDS", color: "purple", disabled: true },
-    {
-      id: ALGORITHMS.A_STAR_MANHATTAN,
-      name: "A* (Manhattan)",
-      color: "pink",
-      disabled: true,
-    },
-    {
-      id: ALGORITHMS.A_STAR_DANGER,
-      name: "A* (Danger)",
-      color: "red",
-      disabled: true,
-    },
-    {
-      id: ALGORITHMS.HILL_CLIMBING,
-      name: "Hill Climbing",
-      color: "orange",
-      disabled: true,
-    },
+    { id: ALGORITHMS.BFS, name: "BFS" },
+    { id: ALGORITHMS.DFS, name: "DFS" },
+    { id: ALGORITHMS.UCS, name: "UCS" },
+    { id: ALGORITHMS.IDS, name: "IDS" },
+    { id: ALGORITHMS.A_STAR_MANHATTAN, name: "A* Manhattan" },
+    { id: ALGORITHMS.A_STAR_DANGER, name: "A* Danger" },
+    { id: ALGORITHMS.HILL_CLIMBING, name: "Hill Climbing" },
   ];
 
   return (

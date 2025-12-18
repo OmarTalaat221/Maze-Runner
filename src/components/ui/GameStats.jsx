@@ -2,7 +2,12 @@ import { memo } from "react";
 import { ALGORITHMS } from "../../utils/constants";
 
 const GameStats = memo(function GameStats({ moves, totalCost, algorithm }) {
-  const showCost = algorithm === ALGORITHMS.UCS;
+  const showCost =
+    algorithm === ALGORITHMS.UCS ||
+    algorithm === ALGORITHMS.IDS ||
+    algorithm === ALGORITHMS.A_STAR_MANHATTAN ||
+    algorithm === ALGORITHMS.A_STAR_DANGER ||
+    algorithm === ALGORITHMS.HILL_CLIMBING;
 
   return (
     <div className="mb-4 flex gap-4">
