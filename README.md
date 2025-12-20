@@ -1,3 +1,43 @@
+# 🎮 Maze Game - AI Pathfinding Algorithms
+
+<div dir="rtl">
+
+## 📖 نظرة عامة
+
+مشروع لعبة متاهة تفاعلية يعرض **7 خوارزميات بحث مختلفة** في الذكاء الاصطناعي. اللاعب يتحكم في قط كرتوني يحاول الهروب من المتاهة مع تجنب الوحوش، بينما تعرض اللعبة المسار الأمثل حسب الخوارزمية المختارة.
+
+</div>
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- **Node.js** (v16 or higher)
+- **npm** or **yarn**
+
+### Installation
+
+bash
+
+# 1. Clone the repository
+
+git clone <repository-url>
+cd maze-game
+
+# 2. Install dependencies
+
+npm install
+
+# 3. Run the development server
+
+npm run dev
+
+# 4. Open browser
+
+# Navigate to: http://localhost:5173
+
 # React + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
